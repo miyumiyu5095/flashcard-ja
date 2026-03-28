@@ -1,0 +1,2598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards EN-JA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0f11;
+  --surface: #1a1a1f;
+  --surface2: #242429;
+  --surface3: #2e2e34;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.13);
+  --text-primary: #f0ede8;
+  --text-secondary: #8a8790;
+  --text-muted: #555360;
+  --accent: #c8b8f0;
+  --accent-dim: rgba(200,184,240,0.12);
+  --green: #7eddb0;
+  --green-dim: rgba(126,221,176,0.12);
+  --red: #f07e8a;
+  --red-dim: rgba(240,126,138,0.12);
+  --amber: #f0c87e;
+  --amber-dim: rgba(240,200,126,0.12);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── SCREEN SYSTEM ── */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0 16px 100px;
+}
+.screen.active { display: flex; }
+
+/* ── SHARED TOPBAR ── */
+.topbar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0 20px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+.topbar-title-left {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
+}
+.topbar-back {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.topbar-back:hover { background: var(--surface2); }
+.topbar-back svg { width: 18px; height: 18px; color: var(--text-secondary); }
+
+/* ════════════════════════════
+   HOME SCREEN
+════════════════════════════ */
+
+/* QUOTE BANNER */
+.quote-banner {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 20px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+  margin-bottom: 8px;
+}
+.quote-banner:hover { border-color: var(--border2); }
+.quote-banner-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.quote-text {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.quote-meaning {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.quote-meaning.show { display: block; }
+.quote-meaning-word {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.quote-meaning-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.quote-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.quote-deck-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.quote-bookmark-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.quote-bookmark-btn:hover { background: var(--surface2); }
+.quote-bookmark-btn.bookmarked { background: var(--amber-dim); border-color: rgba(240,200,126,0.3); }
+.quote-bookmark-btn.bookmarked svg { color: var(--amber); fill: var(--amber); }
+.quote-bookmark-btn svg { width: 13px; height: 13px; color: var(--text-muted); fill: none; transition: all 0.2s; }
+
+/* SECTION LABEL */
+.section-label {
+  width: 100%;
+  max-width: 480px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin: 20px 0 10px;
+}
+
+/* DECK LIST */
+.deck-list {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deck-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.deck-card:hover { border-color: var(--border2); }
+
+.deck-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+}
+.deck-card-left { display: flex; flex-direction: column; gap: 4px; }
+.deck-card-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.deck-card-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.deck-card-chevron {
+  width: 20px; height: 20px;
+  color: var(--text-muted);
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+.deck-card.open .deck-card-chevron { transform: rotate(90deg); }
+
+.deck-card-actions {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+.deck-card.open .deck-card-actions { display: flex; }
+
+.deck-action-btn {
+  flex: 1;
+  padding: 13px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background 0.15s, color 0.15s;
+}
+.deck-action-btn:hover { background: var(--surface2); color: var(--text-primary); }
+.deck-action-btn:first-child { border-right: 1px solid var(--border); }
+.deck-action-btn svg { width: 15px; height: 15px; }
+
+.deck-add-btn {
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.14);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  width: 100%;
+}
+.deck-add-btn:hover { border-color: rgba(255,255,255,0.25); color: var(--text-secondary); background: var(--surface); }
+.deck-add-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* CALENDAR */
+.calendar-wrap {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 18px 16px;
+}
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cal-month {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.cal-nav { display: flex; gap: 4px; }
+.cal-nav-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+.cal-nav-btn:hover { background: var(--surface2); color: var(--text-secondary); }
+.cal-nav-btn svg { width: 14px; height: 14px; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-dow {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 4px 0 6px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-radius: 50%;
+  position: relative;
+  cursor: default;
+}
+.cal-day.empty { color: transparent; }
+.cal-day.today {
+  color: var(--accent);
+  font-weight: 500;
+}
+.cal-day.today::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.cal-day.studied {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.cal-day.studied::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.cal-day.today.studied::after { background: var(--green); }
+.cal-day.studied::before { display: none; }
+.cal-day.today.studied::before { display: none; }
+
+/* FLOATING QUICK BAR */
+.float-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  gap: 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  padding: 6px 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+.float-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.float-btn:hover { background: rgba(255,255,255,0.06); }
+.float-btn:active { transform: scale(0.95); }
+.float-btn svg { width: 18px; height: 18px; }
+.float-btn-label { font-size: 10px; font-weight: 500; letter-spacing: 0.03em; }
+.fbi-continue svg { color: var(--accent); }
+.fbi-continue .float-btn-label { color: var(--accent); }
+.fbi-add svg { color: var(--green); }
+.fbi-add .float-btn-label { color: var(--green); }
+.fbi-settings svg { color: var(--text-secondary); }
+.fbi-settings .float-btn-label { color: var(--text-muted); }
+.float-divider { width: 1px; background: var(--border); margin: 6px 0; }
+.fbi-autoplay svg { color: #60a5fa; }
+.fbi-autoplay .float-btn-label { color: #60a5fa; }
+.ap-opt-btn { padding:5px 10px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s; }
+.ap-opt-btn.active { background:var(--accent-dim);border-color:rgba(200,184,240,0.25);color:var(--accent); }
+
+/* NEW DECK MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 28px 24px 24px;
+  width: 100%;
+  max-width: 400px;
+}
+.modal-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.modal-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.modal-input:focus { border-color: var(--border2); }
+.modal-input::placeholder { color: var(--text-muted); }
+.modal-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.modal-btn {
+  flex: 1;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.modal-btn-cancel { background: transparent; color: var(--text-secondary); }
+.modal-btn-cancel:hover { background: var(--surface2); }
+.modal-btn-create { background: var(--accent-dim); color: var(--accent); border-color: rgba(200,184,240,0.2); }
+.modal-btn-create:hover { background: rgba(200,184,240,0.2); }
+
+/* WORD LIST SCREEN */
+.word-list-wrap {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.word-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  gap: 12px;
+}
+.word-row-selected { background: var(--accent-dim) !important; border-color: rgba(200,184,240,0.2) !important; }
+.word-checkbox {
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 1.5px solid var(--border2); background: var(--surface2);
+  flex-shrink: 0; transition: all 0.15s; cursor: pointer;
+}
+.word-checkbox.checked { background: var(--accent); border-color: var(--accent); }
+.word-checkbox.checked::after { content: '✓'; display:flex; align-items:center; justify-content:center; font-size:11px; color:#0f0f11; font-weight:700; width:100%; height:100%; }
+.word-row-word { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+.word-row-meaning { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.word-row-pos {
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* QUICK ADD MODAL */
+.add-word-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
+}
+.add-word-modal.show { display: flex; }
+.add-word-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 24px 20px 36px;
+  width: 100%;
+  max-width: 480px;
+}
+.add-word-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.add-word-fields { display: flex; flex-direction: column; gap: 10px; }
+.add-field-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+.add-field-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+}
+.add-field-input:focus { border-color: var(--border2); }
+.add-field-input::placeholder { color: var(--text-muted); }
+select.add-field-input { color: var(--text-primary); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555360' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.add-field-row { display: flex; gap: 8px; }
+.add-field-row > div { flex: 1; }
+
+/* ════════════════════════════
+   STUDY SCREEN
+════════════════════════════ */
+.progress-wrap { display: flex; align-items: center; gap: 10px; }
+.progress-text { font-size: 13px; color: var(--text-secondary); font-weight: 500; min-width: 36px; text-align: right; }
+.progress-bar { width: 80px; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+
+.mode-toggle {
+  width: 100%; max-width: 480px;
+  display: flex;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.mode-btn {
+  flex: 1; padding: 8px; border: none;
+  background: transparent; color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; border-radius: 8px; transition: all 0.2s;
+}
+.mode-btn.active { background: var(--surface2); color: var(--text-primary); }
+
+.card-scene {
+  width: 100%; max-width: 480px; height: 320px;
+  perspective: 1000px; margin-bottom: 24px; position: relative;
+}
+.card-inner {
+  width: 100%; height: 100%; position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.45, 0, 0.55, 1);
+  cursor: pointer;
+}
+.card-inner.flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 28px; gap: 16px;
+  text-align: center; user-select: none;
+}
+.card-back { transform: rotateY(180deg); background: var(--surface2); }
+
+.card-bookmark-btn {
+  position: absolute; top: 14px; right: 14px; z-index: 10;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); background: rgba(15,15,17,0.55);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.card-bookmark-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(36,36,41,0.85); }
+.card-bookmark-btn:active { transform: scale(0.9); }
+.card-bookmark-btn.bookmarked { background: var(--amber-dim); border-color: rgba(240,200,126,0.35); }
+.card-bookmark-btn.bookmarked svg { color: var(--amber); fill: var(--amber); }
+.card-bookmark-btn svg { width: 15px; height: 15px; color: var(--text-muted); transition: all 0.2s; fill: none; }
+
+.card-hint { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; position: absolute; top: 20px; }
+.card-word { font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.01em; }
+.card-pos { font-size: 12px; color: var(--accent); background: var(--accent-dim); padding: 3px 10px; border-radius: 20px; font-weight: 500; letter-spacing: 0.04em; }
+.card-example { font-size: 14px; color: var(--text-secondary); line-height: 1.65; font-style: normal; max-width: 340px; }
+.card-target { color: var(--amber); font-weight: 700; font-size: 16px; font-style: normal; }
+.card-blank { color: var(--accent); font-style: normal; font-weight: 500; border-bottom: 1px dashed var(--accent); padding-bottom: 1px; }
+.card-meaning { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text-primary); line-height: 1.2; }
+.card-meaning-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+.status-row { display: flex; gap: 8px; margin-bottom: 12px; min-height: 26px; }
+.badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.04em; }
+.badge-known { background: var(--green-dim); color: var(--green); }
+.badge-unknown { background: var(--red-dim); color: var(--red); }
+.badge-bookmark { background: var(--amber-dim); color: var(--amber); }
+
+.actions { width: 100%; max-width: 480px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.btn-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.btn-icon:hover { border-color: rgba(255,255,255,0.18); background: var(--surface2); }
+.btn-icon:active { transform: scale(0.93); }
+.btn-icon:disabled { opacity: 0.28; cursor: not-allowed; }
+.btn-icon:disabled:hover { border-color: var(--border); background: var(--surface); }
+.btn-icon:disabled:active { transform: none; }
+.btn-icon svg { width: 20px; height: 20px; color: var(--text-secondary); }
+
+.btn-center-group { display: flex; gap: 12px; align-items: center; }
+.btn-action {
+  width: 68px; height: 68px; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.btn-action:active { transform: scale(0.9); }
+.btn-known { background: var(--green-dim); border: 1px solid rgba(126,221,176,0.2); }
+.btn-known:hover { background: rgba(126,221,176,0.22); }
+.btn-unknown { background: var(--red-dim); border: 1px solid rgba(240,126,138,0.2); }
+.btn-unknown:hover { background: rgba(240,126,138,0.22); }
+
+.stats { width: 100%; max-width: 480px; display: flex; gap: 10px; margin-top: 24px; }
+.stat-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; text-align: center; }
+.stat-num { font-size: 22px; font-weight: 500; display: block; margin-bottom: 2px; }
+.stat-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.stat-known .stat-num { color: var(--green); }
+.stat-unknown .stat-num { color: var(--red); }
+.stat-bookmark .stat-num { color: var(--amber); }
+
+.complete-screen {
+  display: none; flex-direction: column; align-items: center;
+  gap: 16px; width: 100%; max-width: 480px;
+  text-align: center; padding: 60px 20px;
+}
+.complete-screen.show { display: flex; }
+.complete-icon { font-size: 48px; margin-bottom: 8px; }
+.complete-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--text-primary); }
+.complete-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+.btn-restart {
+  margin-top: 4px; padding: 12px 28px;
+  background: var(--accent-dim); border: 1px solid rgba(200,184,240,0.25);
+  border-radius: 100px; color: var(--accent);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-restart:hover { background: rgba(200,184,240,0.2); }
+
+.main-wrap { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.main-wrap.hidden { display: none; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 32px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 20px;
+  font-size: 13px; color: var(--text-secondary);
+  opacity: 0; transition: all 0.3s; pointer-events: none;
+  white-space: nowrap; z-index: 300;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* SETTINGS SCREEN */
+.settings-list { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 8px; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+}
+.settings-row-label { font-size: 14px; color: var(--text-primary); }
+.settings-row-value { font-size: 13px; color: var(--text-muted); }
+
+/* TOGGLE SWITCH */
+.toggle-switch {
+  position: relative; width: 40px; height: 22px; flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--surface2);
+  border: 1px solid var(--border2); border-radius: 100px;
+  cursor: pointer; transition: 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; left: 2px; top: 2px;
+  background: var(--text-muted); border-radius: 50%; transition: 0.2s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--green-dim); border-color: rgba(126,221,176,0.3); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--green); }
+
+/* SPEAK MODE SELECTOR */
+.speak-mode-group {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;
+}
+.speak-mode-btn {
+  padding: 6px 12px; border-radius: 100px;
+  border: 1px solid var(--border); background: transparent;
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+}
+.speak-mode-btn.active { background: var(--accent-dim); border-color: rgba(200,184,240,0.25); color: var(--accent); }
+
+/* hidden util */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HOME SCREEN ══════════════ -->
+<div class="screen active" id="screenHome">
+  <div style="height:16px"></div>
+
+  <!-- Quote Banner -->
+  <div class="quote-banner" id="quoteBanner" onclick="toggleQuoteMeaning()">
+    <div class="quote-text" id="quoteText"></div>
+    <div class="quote-meaning" id="quoteMeaning">
+      <div class="quote-meaning-word" id="quoteMeaningWord"></div>
+      <div class="quote-meaning-text" id="quoteMeaningText"></div>
+    </div>
+    <div class="quote-actions">
+      <span class="quote-deck-label" id="quoteDeckLabel"></span>
+      <button class="quote-bookmark-btn" id="quoteBookmarkBtn" onclick="event.stopPropagation(); toggleQuoteBookmark()">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- My Decks -->
+  <div class="section-label">My Decks</div>
+  <div class="deck-list" id="deckList"></div>
+
+  <!-- Calendar -->
+  <div class="section-label">This Month</div>
+  <div class="calendar-wrap">
+    <div class="cal-header">
+      <span class="cal-month" id="calMonth"></span>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeCalMonth(-1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="cal-nav-btn" onclick="changeCalMonth(1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <!-- (Quick Actions moved to floating bar) -->
+</div>
+
+<!-- ══════════════ STUDY SCREEN ══════════════ -->
+<div class="screen" id="screenStudy">
+  <div class="topbar">
+    <button class="topbar-back" onclick="exitStudy()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="topbar-title-left" id="studyDeckTitle">My Flashcard 1</span>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-text" id="progressText">1 / 10</span>
+    </div>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeA" onclick="setMode('A')">Word First</button>
+    <button class="mode-btn" id="modeB" onclick="setMode('B')">Meaning First</button>
+  </div>
+
+  <div class="main-wrap" id="mainWrap">
+    <div class="card-scene" id="cardScene">
+      <div id="cardStatusBtn" style="position:absolute;top:14px;right:56px;z-index:10;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;"></div>
+      <button class="card-bookmark-btn" id="bookmarkBtn" onclick="toggleBookmark()" title="Save">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <div class="card-inner" id="cardInner" onclick="flipCard()">
+        <div class="card-face card-front" id="cardFront"></div>
+        <div class="card-face card-back" id="cardBack"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-icon" id="backBtn" onclick="goBack()" title="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="btn-center-group">
+        <button class="btn-action btn-unknown" onclick="markCard(false)" title="Not yet">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#f07e8a" stroke-width="2.2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <button class="btn-action btn-known" onclick="markCard(true)" title="Nailed it!">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#7eddb0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+      </div>
+      <button class="btn-icon" id="speakerBtn" onclick="toggleAutoSpeak()" title="Auto speak">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="complete-screen" id="completeScreen">
+    <div class="complete-icon">🎉</div>
+    <div class="complete-title">All done!</div>
+    <div class="complete-sub" id="completeMessage"></div>
+    <button class="btn-restart" onclick="restart()">Restart</button>
+    <button class="btn-restart" onclick="reviewUnknown()" id="reviewBtn" style="background:var(--red-dim);border-color:rgba(240,126,138,0.25);color:var(--red);">Review Missed</button>
+    <button class="btn-restart" onclick="exitStudy()" style="background:transparent;border-color:var(--border);color:var(--text-secondary);">Back to Home</button>
+  </div>
+</div>
+
+<!-- ══════════════ WORD LIST SCREEN ══════════════ -->
+<div class="screen" id="screenWordList">
+  <div class="topbar">
+    <button class="topbar-back" id="wordListBackBtn" onclick="exitWordList()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="topbar-title-left" id="wordListTitle" onclick="startEditDeckName()" title="Tap to rename" style="cursor:pointer;border-bottom:1px dashed var(--border2);"></span>
+    <input id="wordListTitleInput" class="topbar-title-left" style="display:none;background:transparent;border:none;border-bottom:1px solid var(--accent);outline:none;color:var(--text-primary);font-family:'DM Serif Display',serif;font-size:18px;padding:0;max-width:160px;" onblur="finishEditDeckName()" onkeydown="if(event.key==='Enter')finishEditDeckName()">
+    <div style="display:flex;gap:6px;">
+      <button class="topbar-back" id="meaningToggleBtn" onclick="toggleMeaningVisibility()" title="Hide/Show meanings" style="background:transparent;">
+        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="topbar-back" id="multiSelectBtn" onclick="toggleMultiSelect()" title="Select" style="background:transparent;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="18" height="18"><rect x="3" y="5" width="4" height="4" rx="1"/><polyline points="9 7 20 7"/><rect x="3" y="12" width="4" height="4" rx="1"/><polyline points="9 14 20 14"/><rect x="3" y="19" width="4" height="4" rx="1"/><polyline points="9 21 20 21"/></svg>
+      </button>
+      <button class="topbar-back" onclick="showAddWordModal()" title="Add word" style="background:var(--accent-dim);border-color:rgba(200,184,240,0.2);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="word-list-wrap" id="wordListWrap"></div>
+  <!-- Multi-select action bar -->
+  <div id="multiActionBar" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:6px 8px;display:none;gap:4px;z-index:150;box-shadow:0 8px 32px rgba(0,0,0,0.45);">
+    <button onclick="deleteSelectedWords()" style="padding:8px 18px;border:none;background:var(--red-dim);border-radius:100px;color:var(--red);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;">Delete</button>
+    <button onclick="showMoveModal()" style="padding:8px 18px;border:none;background:var(--accent-dim);border-radius:100px;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;">Move to...</button>
+    <button onclick="toggleMultiSelect()" style="padding:8px 18px;border:none;background:transparent;border-radius:100px;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
+<!-- Delete Deck Confirm Modal -->
+<div class="modal-overlay" id="deleteDeckModal">
+  <div class="modal-box">
+    <div class="modal-title">Delete Deck?</div>
+    <p style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;">All words in this deck will be permanently deleted. This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('deleteDeckModal').classList.remove('show')">Cancel</button>
+      <button class="modal-btn" style="background:var(--red-dim);color:var(--red);border-color:rgba(240,126,138,0.2);" onclick="confirmDeleteDeck()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Move Words Modal -->
+<div class="modal-overlay" id="moveWordsModal">
+  <div class="modal-box">
+    <div class="modal-title">Move to Deck</div>
+    <div id="moveDeckList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('moveWordsModal').classList.remove('show')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SETTINGS SCREEN ══════════════ -->
+<div class="screen" id="screenSettings">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showScreen('screenHome')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="topbar-title">Settings</span>
+    <div style="width:36px"></div>
+  </div>
+  <div class="settings-list">
+    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <span class="settings-row-label">Speaker reads</span>
+      <div class="speak-mode-group">
+        <button class="speak-mode-btn active" id="smWord" onclick="setSpeakMode('word')">Word only</button>
+        <button class="speak-mode-btn" id="smExample" onclick="setSpeakMode('example')">Example only</button>
+        <button class="speak-mode-btn" id="smBoth" onclick="setSpeakMode('both')">Word → Example</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-row-label">Read meaning (Korean)</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="readMeaningToggle" onchange="setReadMeaning(this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <span class="settings-row-label">Quote refresh interval</span>
+      <div class="speak-mode-group">
+        <button class="speak-mode-btn active" id="qi30" onclick="setQuoteInterval(30)">30 min</button>
+        <button class="speak-mode-btn" id="qi60" onclick="setQuoteInterval(60)">1 hour</button>
+        <button class="speak-mode-btn" id="qi720" onclick="setQuoteInterval(720)">12 hours</button>
+      </div>
+    </div>
+    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <span class="settings-row-label">Quote shows</span>
+      <div class="speak-mode-group">
+        <button class="speak-mode-btn active" id="qfAll" onclick="setQuoteFilter('all')">All</button>
+        <button class="speak-mode-btn" id="qfNotYet" onclick="setQuoteFilter('notyet')">Not Yet</button>
+        <button class="speak-mode-btn" id="qfSaved" onclick="setQuoteFilter('saved')">Saved</button>
+      </div>
+    </div>
+    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <span class="settings-row-label">Default study mode</span>
+      <div class="speak-mode-group">
+        <button class="speak-mode-btn active" id="dmWord" onclick="setDefaultMode('A')">Word First</button>
+        <button class="speak-mode-btn" id="dmMeaning" onclick="setDefaultMode('B')">Meaning First</button>
+      </div>
+    </div>
+    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <span class="settings-row-label">Card order</span>
+      <div class="speak-mode-group">
+        <button class="speak-mode-btn active" id="coSeq" onclick="setCardOrder('sequential')">In order</button>
+        <button class="speak-mode-btn" id="coRand" onclick="setCardOrder('random')">Random</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-row-label">Version</span>
+      <span class="settings-row-value">1.0.0</span>
+    </div>
+  </div>
+</div>
+
+<!-- New Deck Modal -->
+<div class="modal-overlay" id="newDeckModal">
+  <div class="modal-box">
+    <div class="modal-title">New Deck</div>
+    <input class="modal-input" id="newDeckInput" type="text" placeholder="Deck name..." maxlength="40">
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="closeNewDeckModal()">Cancel</button>
+      <button class="modal-btn modal-btn-create" onclick="createNewDeck()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Add Word Modal -->
+<div class="add-word-modal" id="addWordModal" onclick="closeAddWordModal()">
+  <div class="add-word-sheet" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="add-word-title" style="margin-bottom:0;">Add Word</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;">Auto-lookup</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="autoLookupToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;">Continuous</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="continuousToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="add-word-fields">
+      <div>
+        <div class="add-field-label">Deck</div>
+        <select class="add-field-input" id="addDeckSelect" style="cursor:pointer;"></select>
+      </div>
+      <div>
+        <div class="add-field-label">Word</div>
+        <input class="add-field-input" id="addWord" type="text" autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div style="position:relative;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="add-field-label" style="margin-bottom:0;">Meaning</div>
+          <span id="lookupStatus" style="font-size:11px;color:var(--text-muted);"></span>
+        </div>
+        <input class="add-field-input" id="addMeaning" type="text" placeholder="">
+      </div>
+      <div>
+        <div class="add-field-label">Example Sentence</div>
+        <input class="add-field-input" id="addExample" type="text">
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:16px;">
+      <button class="modal-btn modal-btn-cancel" onclick="closeAddWordModal()">Cancel</button>
+      <button class="modal-btn modal-btn-create" onclick="submitAddWord()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Quick Bar -->
+<div class="float-bar" id="floatBar">
+  <button class="float-btn fbi-continue" onclick="continueLastDeck()" title="Continue">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    <span class="float-btn-label">Continue</span>
+  </button>
+  <div class="float-divider"></div>
+  <button class="float-btn fbi-autoplay" onclick="showAutoPlayPicker()" title="Auto Play">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+    <span class="float-btn-label">Auto Play</span>
+  </button>
+  <div class="float-divider"></div>
+  <button class="float-btn fbi-add" onclick="showQuickAdd()" title="Quick Add">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span class="float-btn-label">Quick Add</span>
+  </button>
+  <div class="float-divider"></div>
+  <button class="float-btn fbi-settings" onclick="showScreen('screenSettings')" title="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span class="float-btn-label">Settings</span>
+  </button>
+</div>
+
+<!-- ══════════════ AUTO PLAY SCREEN ══════════════ -->
+<div class="screen" id="screenAutoPlay">
+  <div class="topbar">
+    <button class="topbar-back" onclick="exitAutoPlay()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="topbar-title-left" id="autoPlayTitle">Auto Play</span>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="apProgressFill"></div></div>
+      <span class="progress-text" id="apProgressText">1 / 10</span>
+    </div>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="apModeA" onclick="setApMode('A')">Word First</button>
+    <button class="mode-btn" id="apModeB" onclick="setApMode('B')">Meaning First</button>
+  </div>
+
+  <!-- Card -->
+  <div class="card-scene" style="margin-bottom:20px;position:relative;">
+    <div id="apCardStatusBtn" style="position:absolute;top:14px;right:56px;z-index:10;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;"></div>
+    <button class="card-bookmark-btn" id="apBookmarkBtn" onclick="toggleApBookmark()" title="Save">
+      <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <div class="card-inner" id="apCardInner">
+      <div class="card-face card-front" id="apCardFront"></div>
+      <div class="card-face card-back" id="apCardBack"></div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div style="width:100%;max-width:480px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 16px;display:flex;flex-direction:column;gap:16px;">
+
+    <!-- Playback row -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
+      <button onclick="apPrev()" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--text-secondary)" stroke-width="1.8" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/><line x1="9" y1="6" x2="9" y2="18"/></svg>
+      </button>
+      <button onclick="toggleApPlay()" id="apPlayBtn" style="width:60px;height:60px;border-radius:50%;border:none;background:var(--accent-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <svg id="apPlayIcon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <button onclick="apNext()" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--text-secondary)" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/><line x1="15" y1="6" x2="15" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Filter row -->
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+      <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Filter</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">
+        <button class="ap-opt-btn active" id="apFilterAll" onclick="setApFilter('all')">All</button>
+        <button class="ap-opt-btn" id="apFilterNotYet" onclick="setApFilter('notyet')">Not Yet</button>
+        <button class="ap-opt-btn" id="apFilterNotNailed" onclick="setApFilter('notnailed')">Not Nailed</button>
+      </div>
+    </div>
+
+    <!-- Options row -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+
+      <!-- Interval stepper -->
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Interval</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="adjustApInterval(-1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text-secondary);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">−</button>
+          <span id="apIntervalDisplay" style="font-size:15px;font-weight:500;color:var(--text-primary);min-width:32px;text-align:center;">5s</span>
+          <button onclick="adjustApInterval(1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text-secondary);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">+</button>
+        </div>
+      </div>
+
+      <!-- Repeat count -->
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Repeat</span>
+        <div style="display:flex;gap:4px;">
+          <button class="ap-opt-btn active" id="apRep1" onclick="setApRepeat(1)">1×</button>
+          <button class="ap-opt-btn" id="apRep2" onclick="setApRepeat(2)">2×</button>
+          <button class="ap-opt-btn" id="apRep3" onclick="setApRepeat(3)">3×</button>
+        </div>
+      </div>
+
+      <!-- Auto Repeat -->
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Auto Repeat</span>
+        <button id="apAutoRepeatBtn" onclick="toggleApAutoRepeat()" style="padding:5px 14px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;">Off</button>
+      </div>
+
+      <!-- Random -->
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Random</span>
+        <button id="apRandomBtn" onclick="toggleApRandom()" style="padding:5px 14px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;">Off</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Edit Word Modal -->
+<div class="add-word-modal" id="editWordModal" onclick="closeEditWordModal()">
+  <div class="add-word-sheet" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="add-word-title" style="margin-bottom:0;">Edit Word</div>
+    </div>
+    <div class="add-word-fields">
+      <div>
+        <div class="add-field-label">Word</div>
+        <input class="add-field-input" id="editWordInput" type="text" autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div>
+        <div class="add-field-label">Meaning</div>
+        <input class="add-field-input" id="editMeaningInput" type="text">
+      </div>
+      <div>
+        <div class="add-field-label">Example Sentence</div>
+        <input class="add-field-input" id="editExampleInput" type="text">
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:16px;">
+      <button class="modal-btn modal-btn-cancel" onclick="closeEditWordModal()">Cancel</button>
+      <button class="modal-btn modal-btn-create" onclick="submitEditWord()">Save</button>
+    </div>
+    <button onclick="confirmDeleteWord()" style="width:100%;margin-top:8px;padding:11px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:1px solid rgba(240,126,138,0.2);background:var(--red-dim);color:var(--red);transition:all 0.2s;">Delete this word</button>
+  </div>
+</div>
+
+<!-- Delete Word Confirm -->
+<div class="modal-overlay" id="deleteWordConfirmModal">
+  <div class="modal-box">
+    <div class="modal-title">Delete Word?</div>
+    <p style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:4px;">This word will be permanently deleted.</p>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-cancel" onclick="document.getElementById('deleteWordConfirmModal').classList.remove('show')">Cancel</button>
+      <button class="modal-btn" style="background:var(--red-dim);color:var(--red);border-color:rgba(240,126,138,0.2);" onclick="executeDeleteWord()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+// ── FIREBASE ──
+const firebaseConfig = {
+  apiKey: "AIzaSyAl7kPpEoxHE9v3ahfNzFtqwF54ANz1Ohk",
+  authDomain: "my-flashcard-90a38.firebaseapp.com",
+  projectId: "my-flashcard-90a38",
+  storageBucket: "my-flashcard-90a38.firebasestorage.app",
+  messagingSenderId: "911330115467",
+  appId: "1:911330115467:web:73214ab95f457c0180f98e"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const FB_REF = doc(db, "flashcards", "user-data-ja");
+
+async function saveToFirebase() {
+  try {
+    await setDoc(FB_REF, {
+      decks: JSON.parse(JSON.stringify(decks)),
+      studiedDates: [...studiedDates],
+      homeBookmarks: [...homeBookmarks],
+      wordStatuses,
+      lastDeckId,
+      speakMode,
+      quoteIntervalMin,
+      defaultStudyMode,
+      cardOrder,
+      readMeaning,
+      quoteFilter
+    });
+  } catch(e) { console.error("Save failed:", e); }
+}
+
+async function loadFromFirebase() {
+  _isLoading = true;
+  try {
+    showToast('Syncing...');
+    const snap = await getDoc(FB_REF);
+    if (snap.exists()) {
+      const data = snap.data();
+      if (data.decks && data.decks.length) decks = data.decks;
+      if (data.studiedDates) studiedDates = new Set(data.studiedDates);
+      if (data.homeBookmarks) homeBookmarks = new Set(data.homeBookmarks);
+      if (data.wordStatuses) wordStatuses = data.wordStatuses;
+      if (data.lastDeckId) lastDeckId = data.lastDeckId;
+      if (data.speakMode) { speakMode = data.speakMode; setSpeakMode(speakMode); }
+      if (data.quoteIntervalMin) { quoteIntervalMin = data.quoteIntervalMin; setQuoteInterval(quoteIntervalMin); }
+      if (data.defaultStudyMode) { defaultStudyMode = data.defaultStudyMode; setDefaultMode(defaultStudyMode); }
+      if (data.cardOrder) { cardOrder = data.cardOrder; setCardOrder(cardOrder); }
+      if (data.readMeaning !== undefined) { setReadMeaning(data.readMeaning); }
+      if (data.quoteFilter) { quoteFilter = data.quoteFilter; setQuoteFilter(quoteFilter); }
+      showToast('Synced ✓');
+    }
+  } catch(e) {
+    console.error("Load failed:", e);
+    showToast('Offline mode');
+  }
+  // 데이터 로드 완료 후 순서대로 실행
+  const now = new Date();
+  calViewYear = now.getFullYear();
+  calViewMonth = now.getMonth();
+  renderCalendar();
+  pickRandomQuote();
+  startQuoteTimer();
+  renderDeckList();
+  _isLoading = false;
+}
+
+function autosave() { if (!_isLoading) saveToFirebase(); }
+window.autosave = autosave;
+
+let _isLoading = false;
+
+function shuffleDeck(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── DATA ──
+let decks = [
+  {
+    id: 1,
+    name: "My Flashcard 1",
+    cards: [
+      { word: "ambiguous",  pos: "adj", meaning: "曖昧な、不明確な",         example: "The contract contained several ambiguous clauses." },
+      { word: "diligent",   pos: "adj", meaning: "勤勉な、真面目な",          example: "She was a diligent student who never missed a class." },
+      { word: "eloquent",   pos: "adj", meaning: "雄弁な、流暢な",            example: "His eloquent speech moved the entire audience." },
+      { word: "inevitable", pos: "adj", meaning: "避けられない、必然的な",    example: "Change is inevitable in a growing company." },
+      { word: "meticulous", pos: "adj", meaning: "細心の、丁寧な",            example: "The surgeon was meticulous in every step of the operation." },
+      { word: "pragmatic",  pos: "adj", meaning: "実用的な、現実的な",        example: "We need a pragmatic approach to solve this problem." },
+      { word: "resilient",  pos: "adj", meaning: "回復力のある、弾力的な",    example: "Children are often more resilient than we think." },
+      { word: "scrutinize", pos: "v",   meaning: "詳しく調べる、精査する",    example: "The committee will scrutinize the financial records." },
+      { word: "tangible",   pos: "adj", meaning: "実質的な、明確な",          example: "We need tangible evidence before making any accusations." },
+      { word: "versatile",  pos: "adj", meaning: "多才な、用途の広い",        example: "She is a versatile actress who can play any role." }
+    ]
+  }
+];
+
+let studiedDates = new Set(); // "YYYY-MM-DD" strings
+let homeBookmarks = new Set(); // card global keys "deckId-cardIdx"
+let wordStatuses = {}; // { word: 'known' | 'unknown' } — persistent across sessions
+let lastDeckId = 1;
+let lastSessionDeck = [];   // 마지막 카드 순서
+let lastSessionCurrent = 0; // 마지막 위치
+let lastSessionMode = 'A';  // 마지막 모드
+let calViewYear, calViewMonth;
+let quoteCardRef = null;
+let quoteRefreshTimer = null;
+
+// ── STUDY STATE ──
+let currentDeckId = null;
+let currentStudyDeckId = null;
+let cards = [];
+let current = 0, mode = 'A', isFlipped = false;
+let bookmarks = new Set();
+let deck = [], history = [];
+
+// ── VOICE ──
+let preferredVoice = null;
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  const preferred = ['Google US English','Microsoft Aria Online (Natural) - English (United States)','Microsoft Jenny Online (Natural) - English (United States)','Samantha','Alex'];
+  for (const name of preferred) { const v = voices.find(v => v.name === name); if (v) { preferredVoice = v; return; } }
+  preferredVoice = voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('compact')) || null;
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+// ── SCREEN NAVIGATION ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  const bar = document.getElementById('floatBar');
+  if (bar) bar.style.display = (id === 'screenAutoPlay' || id === 'screenStudy') ? 'none' : 'flex';
+}
+
+// ── QUOTE BANNER ──
+function highlightWord(text, word) {
+  return text.replace(new RegExp(`(${word})`, 'gi'), '<span class="card-target">$1</span>');
+}
+
+function pickRandomQuote() {
+  const all = [];
+  decks.forEach(d => d.cards.forEach((c, i) => {
+    const key = d.id + '-' + i;
+    const status = wordStatuses[c.word] || null;
+    if (quoteFilter === 'notyet' && status !== 'unknown') return;
+    if (quoteFilter === 'saved' && !homeBookmarks.has(key)) return;
+    all.push({ deckId: d.id, cardIdx: i, deck: d, card: c });
+  }));
+  // Fallback to all if filter yields nothing
+  if (!all.length) {
+    decks.forEach(d => d.cards.forEach((c, i) => all.push({ deckId: d.id, cardIdx: i, deck: d, card: c })));
+  }
+  if (!all.length) return;
+  const pick = all[Math.floor(Math.random() * all.length)];
+  quoteCardRef = { deckId: pick.deckId, cardIdx: pick.cardIdx };
+  document.getElementById('quoteText').innerHTML = '"' + highlightWord(pick.card.example, pick.card.word) + '"';
+  document.getElementById('quoteDeckLabel').textContent = pick.deck.name;
+  document.getElementById('quoteMeaningWord').textContent = pick.card.word + ' · ' + pick.card.meaning;
+  document.getElementById('quoteMeaningText').textContent = pick.card.pos;
+  document.getElementById('quoteMeaning').classList.remove('show');
+  const key = pick.deckId + '-' + pick.cardIdx;
+  document.getElementById('quoteBookmarkBtn').classList.toggle('bookmarked', homeBookmarks.has(key));
+}
+
+function toggleQuoteMeaning() {
+  document.getElementById('quoteMeaning').classList.toggle('show');
+  // TTS — speak word when tapping
+  if (quoteCardRef) {
+    const d = decks.find(d => d.id === quoteCardRef.deckId);
+    if (d && d.cards[quoteCardRef.cardIdx]) {
+      const c = d.cards[quoteCardRef.cardIdx];
+      speechSynthesis.cancel();
+      const utt = new SpeechSynthesisUtterance(
+        speakMode === 'example' ? c.example : c.word
+      );
+      utt.lang = 'en-US'; utt.rate = 0.85;
+      if (preferredVoice) utt.voice = preferredVoice;
+      speechSynthesis.speak(utt);
+    }
+  }
+}
+
+function setQuoteFilter(f) {
+  quoteFilter = f;
+  ['qfAll','qfNotYet','qfSaved'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = { all: 'qfAll', notyet: 'qfNotYet', saved: 'qfSaved' };
+  document.getElementById(map[f]).classList.add('active');
+  pickRandomQuote();
+  window.autosave?.();
+}
+
+function toggleQuoteBookmark() {
+  if (!quoteCardRef) return;
+  const key = quoteCardRef.deckId + '-' + quoteCardRef.cardIdx;
+  if (homeBookmarks.has(key)) { homeBookmarks.delete(key); showToast('Removed'); }
+  else { homeBookmarks.add(key); showToast('Saved!'); }
+  document.getElementById('quoteBookmarkBtn').classList.toggle('bookmarked', homeBookmarks.has(key));
+  window.autosave?.();
+}
+
+function startQuoteTimer() {
+  if (quoteRefreshTimer) clearInterval(quoteRefreshTimer);
+  quoteRefreshTimer = setInterval(pickRandomQuote, quoteIntervalMin * 60 * 1000);
+}
+
+// ── DECK LIST ──
+function renderDeckList() {
+  const list = document.getElementById('deckList');
+  list.innerHTML = '';
+  decks.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'deck-card';
+    el.id = 'deck-' + d.id;
+    el.innerHTML = `
+      <div class="deck-card-header" onclick="toggleDeck(${d.id})">
+        <div class="deck-card-left">
+          <span class="deck-card-name">${d.name}</span>
+          <span class="deck-card-meta">${d.cards.length} words</span>
+        </div>
+        <svg class="deck-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="deck-card-actions">
+        <button class="deck-action-btn" onclick="startStudy(${d.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Start Study
+        </button>
+        <button class="deck-action-btn" onclick="viewWordList(${d.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          View Words
+        </button>
+        <button class="deck-action-btn" onclick="promptDeleteDeck(${d.id})" style="color:var(--red);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          Delete
+        </button>
+      </div>`;
+    list.appendChild(el);
+  });
+
+  // Add deck button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'deck-add-btn';
+  addBtn.onclick = () => document.getElementById('newDeckModal').classList.add('show');
+  addBtn.innerHTML = `<div class="deck-add-icon">+</div><span>New Deck</span>`;
+  list.appendChild(addBtn);
+
+  updateQuickLabels();
+}
+
+function toggleDeck(id) {
+  const el = document.getElementById('deck-' + id);
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.deck-card').forEach(d => d.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+
+// ── NEW DECK MODAL ──
+function closeNewDeckModal() {
+  document.getElementById('newDeckModal').classList.remove('show');
+  document.getElementById('newDeckInput').value = '';
+}
+function createNewDeck() {
+  const name = document.getElementById('newDeckInput').value.trim();
+  if (!name) return;
+  const newId = Date.now();
+  decks.push({ id: newId, name, cards: [] });
+  closeNewDeckModal();
+  renderDeckList();
+  showToast('Deck created!');
+  window.autosave?.();
+}
+
+// ── EDIT WORD ──
+let editWordTargetIdx = null;
+
+function openEditWord(idx, e) {
+  e.stopPropagation();
+  const d = decks.find(d => d.id === currentDeckId);
+  if (!d || !d.cards[idx]) return;
+  editWordTargetIdx = idx;
+  const c = d.cards[idx];
+  document.getElementById('editWordInput').value = c.word;
+  document.getElementById('editMeaningInput').value = c.meaning;
+  document.getElementById('editExampleInput').value = c.example;
+  document.getElementById('editWordModal').classList.add('show');
+  setTimeout(() => document.getElementById('editWordInput').focus(), 100);
+  ['editWordInput','editMeaningInput','editExampleInput'].forEach(id => {
+    document.getElementById(id).onkeydown = (e) => { if (e.key === 'Enter') submitEditWord(); };
+  });
+}
+
+function confirmDeleteWord() {
+  document.getElementById('deleteWordConfirmModal').classList.add('show');
+}
+
+function executeDeleteWord() {
+  const d = decks.find(d => d.id === currentDeckId);
+  if (!d || editWordTargetIdx === null) return;
+  const word = d.cards[editWordTargetIdx].word;
+  d.cards.splice(editWordTargetIdx, 1);
+  delete wordStatuses[word];
+  document.getElementById('deleteWordConfirmModal').classList.remove('show');
+  closeEditWordModal();
+  renderWordList();
+  renderDeckList();
+  pickRandomQuote();
+  window.autosave?.();
+  showToast('Word deleted');
+}
+
+function closeEditWordModal() {
+  document.getElementById('editWordModal').classList.remove('show');
+  editWordTargetIdx = null;
+}
+
+function submitEditWord() {
+  const d = decks.find(d => d.id === currentDeckId);
+  if (!d || editWordTargetIdx === null) return;
+  const word = document.getElementById('editWordInput').value.trim();
+  const meaning = document.getElementById('editMeaningInput').value.trim();
+  const example = document.getElementById('editExampleInput').value.trim();
+  if (!word || !meaning) { showToast('Word and meaning required'); return; }
+  const c = d.cards[editWordTargetIdx];
+  const oldWord = c.word;
+  c.word = word;
+  c.meaning = meaning;
+  c.example = example || word + '.';
+  c.pos = detectPos(word);
+  // Update wordStatuses key if word changed
+  if (oldWord !== word && wordStatuses[oldWord] !== undefined) {
+    wordStatuses[word] = wordStatuses[oldWord];
+    delete wordStatuses[oldWord];
+  }
+  closeEditWordModal();
+  renderWordList();
+  renderDeckList();
+  pickRandomQuote();
+  window.autosave?.();
+  showToast('Saved!');
+}
+function startEditDeckName() {
+  const span = document.getElementById('wordListTitle');
+  const input = document.getElementById('wordListTitleInput');
+  input.value = span.textContent;
+  span.style.display = 'none';
+  input.style.display = 'block';
+  input.focus();
+  input.select();
+}
+
+function finishEditDeckName() {
+  const span = document.getElementById('wordListTitle');
+  const input = document.getElementById('wordListTitleInput');
+  const newName = input.value.trim();
+  if (newName && newName !== span.textContent) {
+    const d = decks.find(d => d.id === currentDeckId);
+    if (d) {
+      d.name = newName;
+      span.textContent = newName;
+      renderDeckList();
+      window.autosave?.();
+      showToast('Renamed!');
+    }
+  }
+  input.style.display = 'none';
+  span.style.display = 'block';
+}
+let multiSelectMode = false;
+let selectedWordIndices = new Set();
+let deleteDeckTargetId = null;
+let meaningVisible = true;
+
+function exitWordList() {
+  if (multiSelectMode) { toggleMultiSelect(); return; }
+  meaningVisible = true;
+  showScreen('screenHome');
+}
+
+function viewWordList(deckId) {
+  const d = decks.find(d => d.id === deckId);
+  if (!d) return;
+  currentDeckId = deckId;
+  multiSelectMode = false;
+  selectedWordIndices = new Set();
+  meaningVisible = true;
+  document.getElementById('multiSelectBtn').style.background = 'transparent';
+  document.getElementById('multiActionBar').style.display = 'none';
+  document.getElementById('wordListTitle').textContent = d.name;
+  updateEyeIcon();
+  renderWordList();
+  showScreen('screenWordList');
+}
+
+function updateEyeIcon() {
+  const icon = document.getElementById('eyeIcon');
+  const btn = document.getElementById('meaningToggleBtn');
+  if (meaningVisible) {
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    btn.style.background = 'transparent';
+  } else {
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    btn.style.background = 'var(--surface2)';
+  }
+}
+
+function toggleMeaningVisibility() {
+  meaningVisible = !meaningVisible;
+  updateEyeIcon();
+  renderWordList();
+}
+
+function speakWord(word) {
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(word);
+  utt.lang = 'en-US'; utt.rate = 0.85; utt.pitch = 1;
+  if (preferredVoice) utt.voice = preferredVoice;
+  speechSynthesis.speak(utt);
+}
+
+function toggleWordStatus(idx, e) {
+  e.stopPropagation();
+  const d = decks.find(d => d.id === currentDeckId);
+  if (!d || !d.cards[idx]) return;
+  const word = d.cards[idx].word;
+  const cur = wordStatuses[word] || null;
+  if (cur === null) wordStatuses[word] = 'known';
+  else if (cur === 'known') wordStatuses[word] = 'unknown';
+  else delete wordStatuses[word];
+  window.autosave?.();
+  renderWordList();
+}
+
+function renderWordList() {
+  const d = decks.find(d => d.id === currentDeckId);
+  const wrap = document.getElementById('wordListWrap');
+  wrap.innerHTML = '';
+  if (!d || !d.cards.length) {
+    wrap.innerHTML = '<p style="color:var(--text-muted);font-size:14px;text-align:center;padding:32px 0;">No words yet. Tap + to add.</p>';
+    return;
+  }
+  d.cards.forEach((c, i) => {
+    const status = wordStatuses[c.word] || null;
+    let statusBtnStyle = 'width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all 0.15s;';
+    let statusBtnContent = '<span style="color:var(--text-muted);font-size:10px;">?</span>';
+    if (status === 'known') {
+      statusBtnStyle += 'background:var(--green-dim);border-color:rgba(126,221,176,0.3);';
+      statusBtnContent = '<span style="color:var(--green);">✓</span>';
+    } else if (status === 'unknown') {
+      statusBtnStyle += 'background:var(--red-dim);border-color:rgba(240,126,138,0.3);';
+      statusBtnContent = '<span style="color:var(--red);">✗</span>';
+    }
+
+    const row = document.createElement('div');
+    row.className = 'word-row' + (selectedWordIndices.has(i) ? ' word-row-selected' : '');
+    row.dataset.idx = i;
+    if (multiSelectMode) {
+      row.onclick = () => toggleWordSelect(i);
+    } else {
+      row.onclick = () => speakWord(c.word);
+      row.style.cursor = 'pointer';
+    }
+
+    const meaningHtml = meaningVisible
+      ? `<span class="word-row-meaning">${c.meaning}</span>`
+      : `<span class="word-row-meaning" style="color:var(--surface2);background:var(--surface2);border-radius:4px;user-select:none;">••••••</span>`;
+
+    row.innerHTML = `
+      ${multiSelectMode ? `<div class="word-checkbox ${selectedWordIndices.has(i) ? 'checked' : ''}"></div>` : ''}
+      <div class="word-row-left">
+        <span class="word-row-word">${c.word}</span>
+        ${meaningHtml}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        ${!multiSelectMode ? `<button style="${statusBtnStyle}" onclick="toggleWordStatus(${i}, event)">${statusBtnContent}</button>` : ''}
+        <span class="word-row-pos">${c.pos}</span>
+        ${!multiSelectMode ? `<button onclick="openEditWord(${i},event)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;" title="Edit">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>` : ''}
+      </div>`;
+    wrap.appendChild(row);
+  });
+}
+
+function toggleMultiSelect() {
+  multiSelectMode = !multiSelectMode;
+  selectedWordIndices = new Set();
+  const btn = document.getElementById('multiSelectBtn');
+  const bar = document.getElementById('multiActionBar');
+  btn.style.background = multiSelectMode ? 'var(--accent-dim)' : 'transparent';
+  bar.style.display = multiSelectMode ? 'flex' : 'none';
+  renderWordList();
+}
+
+function toggleWordSelect(idx) {
+  if (selectedWordIndices.has(idx)) selectedWordIndices.delete(idx);
+  else selectedWordIndices.add(idx);
+  renderWordList();
+}
+
+function deleteSelectedWords() {
+  if (!selectedWordIndices.size) { showToast('No words selected'); return; }
+  const d = decks.find(d => d.id === currentDeckId);
+  if (!d) return;
+  const sorted = [...selectedWordIndices].sort((a, b) => b - a);
+  sorted.forEach(i => d.cards.splice(i, 1));
+  selectedWordIndices = new Set();
+  showToast(`${sorted.length} word${sorted.length > 1 ? 's' : ''} deleted`);
+  window.autosave?.();
+  renderWordList();
+  renderDeckList();
+}
+
+function showMoveModal() {
+  if (!selectedWordIndices.size) { showToast('No words selected'); return; }
+  const list = document.getElementById('moveDeckList');
+  list.innerHTML = '';
+  decks.filter(d => d.id !== currentDeckId).forEach(d => {
+    const btn = document.createElement('button');
+    btn.style.cssText = 'width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:"DM Sans",sans-serif;font-size:14px;cursor:pointer;text-align:left;';
+    btn.textContent = d.name;
+    btn.onclick = () => moveSelectedWords(d.id);
+    list.appendChild(btn);
+  });
+  if (!list.children.length) list.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No other decks available.</p>';
+  document.getElementById('moveWordsModal').classList.add('show');
+}
+
+function moveSelectedWords(targetDeckId) {
+  const src = decks.find(d => d.id === currentDeckId);
+  const tgt = decks.find(d => d.id === targetDeckId);
+  if (!src || !tgt) return;
+  const sorted = [...selectedWordIndices].sort((a, b) => b - a);
+  const moved = sorted.map(i => src.cards[i]);
+  sorted.forEach(i => src.cards.splice(i, 1));
+  moved.forEach(c => tgt.cards.push(c));
+  document.getElementById('moveWordsModal').classList.remove('show');
+  selectedWordIndices = new Set();
+  showToast(`Moved to ${tgt.name}`);
+  window.autosave?.();
+  renderWordList();
+  renderDeckList();
+}
+
+// ── DELETE DECK ──
+function promptDeleteDeck(deckId) {
+  deleteDeckTargetId = deckId;
+  document.getElementById('deleteDeckModal').classList.add('show');
+}
+
+function confirmDeleteDeck() {
+  if (!deleteDeckTargetId) return;
+  decks = decks.filter(d => d.id !== deleteDeckTargetId);
+  if (lastDeckId === deleteDeckTargetId) lastDeckId = decks.length ? decks[0].id : null;
+  document.getElementById('deleteDeckModal').classList.remove('show');
+  deleteDeckTargetId = null;
+  renderDeckList();
+  pickRandomQuote();
+  window.autosave?.();
+  showToast('Deck deleted');
+}
+
+// ── ADD WORD ──
+let addWordTargetDeckId = null;
+function showAddWordModal(deckId) {
+  addWordTargetDeckId = deckId || currentDeckId || lastDeckId;
+  // Populate deck selector
+  const sel = document.getElementById('addDeckSelect');
+  sel.innerHTML = '';
+  decks.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.name;
+    if (d.id === addWordTargetDeckId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.onchange = () => { addWordTargetDeckId = Number(sel.value); };
+  document.getElementById('addWord').value = '';
+  document.getElementById('addMeaning').value = '';
+  document.getElementById('addExample').value = '';
+  document.getElementById('lookupStatus').textContent = '';
+  document.getElementById('addWordModal').classList.add('show');
+  setTimeout(() => document.getElementById('addWord').focus(), 100);
+  document.getElementById('addWord').oninput = onAddWordInput;
+  ['addWord','addMeaning','addExample'].forEach(id => {
+    document.getElementById(id).onkeydown = (e) => { if (e.key === 'Enter') submitAddWord(); };
+  });
+}
+function closeAddWordModal() {
+  document.getElementById('addWordModal').classList.remove('show');
+  clearTimeout(lookupTimer);
+}
+// ── AUTO LOOKUP ──
+let lookupTimer = null;
+
+async function lookupWord(word) {
+  const status = document.getElementById('lookupStatus');
+  status.textContent = 'Looking up...';
+  status.style.color = 'var(--text-muted)';
+  try {
+    const dictRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!dictRes.ok) throw new Error('not found');
+    const dictData = await dictRes.json();
+    const entry = dictData[0];
+
+    // Extract SHORT core definition — first definition, strip examples and parentheticals
+    let engDef = '';
+    for (const meaning of entry.meanings) {
+      if (meaning.definitions && meaning.definitions[0]) {
+        let def = meaning.definitions[0].definition;
+        // Remove parenthetical notes like "(of a person)" or "(formal)"
+        def = def.replace(/\([^)]*\)\s*/g, '').trim();
+        // Take only up to first semicolon or period
+        def = def.split(/[;.]/)[0].trim();
+        // Limit to ~8 words max for conciseness
+        const words = def.split(' ');
+        if (words.length > 8) def = words.slice(0, 8).join(' ');
+        engDef = def;
+        break;
+      }
+    }
+    if (!engDef) throw new Error('no definition');
+
+    // Translate short definition to Korean
+    const transRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(engDef)}&langpair=en|ja`);
+    const transData = await transRes.json();
+    let korean = transData.responseData && transData.responseData.translatedText;
+    if (!korean) throw new Error('no translation');
+
+    // Remove trailing punctuation
+    korean = korean.replace(/[.;,]+$/, '').trim();
+
+    document.getElementById('addMeaning').value = korean;
+    status.textContent = '✓ Auto-filled';
+    status.style.color = 'var(--green)';
+    setTimeout(() => { status.textContent = ''; }, 2500);
+  } catch (e) {
+    status.textContent = 'Not found';
+    status.style.color = 'var(--text-muted)';
+    setTimeout(() => { status.textContent = ''; }, 2000);
+  }
+}
+
+function onAddWordInput() {
+  const autoOn = document.getElementById('autoLookupToggle').checked;
+  if (!autoOn) return;
+  const word = document.getElementById('addWord').value.trim();
+  clearTimeout(lookupTimer);
+  document.getElementById('lookupStatus').textContent = '';
+  if (word.length < 2) return;
+  lookupTimer = setTimeout(() => lookupWord(word), 900);
+}
+
+
+function detectPos(word) {
+  const w = word.toLowerCase().trim();
+  if (/ing$/.test(w)) return 'v';
+  if (/tion$|sion$|ment$|ness$|ity$|ance$|ence$|hood$|ship$|dom$|ism$|ist$/.test(w)) return 'n';
+  if (/ly$/.test(w)) return 'adv';
+  if (/ful$|less$|ous$|ious$|eous$|al$|ial$|ic$|ical$|ive$|ative$|ible$|able$|ent$|ant$|ary$/.test(w)) return 'adj';
+  if (/ize$|ise$|ify$|en$|ate$/.test(w)) return 'v';
+  if (/ed$/.test(w)) return 'v';
+  return 'n';
+}
+
+function submitAddWord() {
+  const word = document.getElementById('addWord').value.trim();
+  const meaning = document.getElementById('addMeaning').value.trim();
+  const example = document.getElementById('addExample').value.trim();
+  if (!word || !meaning) { showToast('Word and meaning required'); return; }
+  const pos = detectPos(word);
+  const d = decks.find(d => d.id === addWordTargetDeckId);
+  if (!d) return;
+  d.cards.push({ word, pos, meaning, example: example || word + '.' });
+  renderDeckList();
+  pickRandomQuote();
+  showToast('Added! (' + pos + ')');
+  window.autosave?.();
+  const continuous = document.getElementById('continuousToggle').checked;
+  if (continuous) {
+    document.getElementById('addWord').value = '';
+    document.getElementById('addMeaning').value = '';
+    document.getElementById('addExample').value = '';
+    document.getElementById('addWord').focus();
+  } else {
+    closeAddWordModal();
+    if (document.getElementById('screenWordList').classList.contains('active')) {
+      renderWordList();
+    }
+  }
+}
+
+// ── QUICK ACTIONS ──
+function updateQuickLabels() {}
+
+function continueLastDeck() {
+  const d = decks.find(d => d.id === lastDeckId);
+  if (!d) { showToast('No recent session'); return; }
+  // 이어서 할 수 있는 세션이 있으면 이어서
+  if (lastSessionDeck.length && lastDeckId === currentStudyDeckId) {
+    currentDeckId = lastDeckId;
+    cards = d.cards;
+    deck = [...lastSessionDeck];
+    current = lastSessionCurrent;
+    mode = lastSessionMode;
+    isFlipped = false;
+    bookmarks = new Set();
+    history = [];
+    document.getElementById('studyDeckTitle').textContent = d.name;
+    document.getElementById('modeA').classList.toggle('active', mode === 'A');
+    document.getElementById('modeB').classList.toggle('active', mode === 'B');
+    document.getElementById('mainWrap').classList.remove('hidden');
+    document.getElementById('completeScreen').classList.remove('show');
+    document.getElementById('cardInner').classList.remove('flipped');
+    showScreen('screenStudy');
+    renderCard();
+  } else {
+    startStudy(lastDeckId);
+  }
+}
+
+function showQuickAdd() {
+  showAddWordModal(lastDeckId);
+}
+
+// ── CALENDAR ──
+function initCalendar() {
+  const now = new Date();
+  calViewYear = now.getFullYear();
+  calViewMonth = now.getMonth();
+  renderCalendar();
+}
+
+function changeCalMonth(delta) {
+  calViewMonth += delta;
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  if (calViewMonth < 0)  { calViewMonth = 11; calViewYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const now = new Date();
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonth').textContent = months[calViewMonth] + ' ' + calViewYear;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+  const firstDay = new Date(calViewYear, calViewMonth, 1).getDay();
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    const dateStr = calViewYear + '-' + String(calViewMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    if (d === now.getDate() && calViewMonth === now.getMonth() && calViewYear === now.getFullYear()) el.classList.add('today');
+    if (studiedDates.has(dateStr)) el.classList.add('studied');
+    grid.appendChild(el);
+  }
+}
+
+function markTodayStudied() {
+  const now = new Date();
+  const dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  if (!studiedDates.has(dateStr)) {
+    studiedDates.add(dateStr);
+    window.autosave?.();
+  }
+  renderCalendar();
+}
+
+// ── STUDY ──
+function startStudy(deckId) {
+  const d = decks.find(d => d.id === deckId);
+  if (!d || !d.cards.length) { showToast('No words in this deck'); return; }
+  currentDeckId = deckId;
+  currentStudyDeckId = deckId;
+  lastDeckId = deckId;
+  cards = d.cards;
+  current = 0; mode = defaultStudyMode; isFlipped = false;
+  bookmarks = new Set();
+  deck = [...cards.keys()];
+  if (cardOrder === 'random') deck = shuffleDeck(deck);
+  history = [];
+  document.getElementById('studyDeckTitle').textContent = d.name;
+  document.getElementById('modeA').classList.toggle('active', mode === 'A');
+  document.getElementById('modeB').classList.toggle('active', mode === 'B');
+  document.getElementById('mainWrap').classList.remove('hidden');
+  document.getElementById('completeScreen').classList.remove('show');
+  document.getElementById('cardInner').classList.remove('flipped');
+  showScreen('screenStudy');
+  renderCard();
+}
+
+function exitStudy() {
+  // 마지막 위치 저장
+  lastSessionDeck = [...deck];
+  lastSessionCurrent = current;
+  lastSessionMode = mode;
+  updateQuickLabels();
+  renderDeckList();
+  renderCalendar();
+  showScreen('screenHome');
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeA').classList.toggle('active', m === 'A');
+  document.getElementById('modeB').classList.toggle('active', m === 'B');
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  renderCard();
+}
+
+function renderCard() {
+  if (current >= deck.length) { showComplete(); return; }
+  const idx = deck[current];
+  const c = cards[idx];
+  const front = document.getElementById('cardFront');
+  const back = document.getElementById('cardBack');
+  const highlighted = highlightWord(c.example, c.word);
+  if (mode === 'A') {
+    front.innerHTML = `<span class="card-hint">Tap to reveal</span><div class="card-word">${c.word}</div><div class="card-pos">${c.pos}</div><div class="card-example">"${highlighted}"</div>`;
+    back.innerHTML = `<span class="card-hint">Meaning</span><div class="card-meaning">${c.meaning}</div><div class="card-meaning-sub">${c.word} · ${c.pos}</div><div class="card-example" style="margin-top:4px;">"${highlighted}"</div>`;
+  } else {
+    const blanked = c.example.replace(new RegExp(c.word, 'gi'), `<span class="card-blank">${'_'.repeat(c.word.length)}</span>`);
+    front.innerHTML = `<span class="card-hint">Tap to reveal</span><div class="card-meaning">${c.meaning}</div><div class="card-example" style="margin-top:8px;">"${blanked}"</div>`;
+    back.innerHTML = `<span class="card-hint">Answer</span><div class="card-word">${c.word}</div><div class="card-pos">${c.pos}</div><div class="card-example">"${highlighted}"</div>`;
+  }
+  updateProgress();
+  updateStatusRow(idx);
+  updateStats();
+  updateBackBtn();
+  document.getElementById('bookmarkBtn').classList.toggle('bookmarked', bookmarks.has(idx));
+  if (autoSpeak) setTimeout(() => speak(), 300);
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+}
+
+function markCard(isKnown) {
+  if (current >= deck.length) return;
+  const idx = deck[current];
+  const word = cards[idx].word;
+  const prevStatus = wordStatuses[word] || null;
+  history.push({ idx, prevStatus });
+  wordStatuses[word] = isKnown ? 'known' : 'unknown';
+  if (isKnown) showToast('Nailed it! ✦');
+  else showToast('Not yet...');
+  current++;
+  isFlipped = false;
+  markTodayStudied();
+  window.autosave?.();
+  setTimeout(() => { document.getElementById('cardInner').classList.remove('flipped'); renderCard(); }, 150);
+}
+
+function goBack() {
+  if (current === 0) return;
+  current--;
+  const prev = history.pop();
+  if (prev) {
+    const word = cards[prev.idx].word;
+    if (prev.prevStatus) wordStatuses[word] = prev.prevStatus;
+    else delete wordStatuses[word];
+  }
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  renderCard();
+}
+
+function updateBackBtn() { document.getElementById('backBtn').disabled = (current === 0); }
+
+function toggleBookmark() {
+  if (current >= deck.length) return;
+  const idx = deck[current];
+  if (bookmarks.has(idx)) { bookmarks.delete(idx); showToast('Removed'); }
+  else { bookmarks.add(idx); showToast('Saved!'); }
+  document.getElementById('bookmarkBtn').classList.toggle('bookmarked', bookmarks.has(idx));
+  updateStats(); updateStatusRow(idx);
+  window.autosave?.();
+}
+
+// ── SPEAK MODE ──
+let speakMode = 'word';
+let autoSpeak = false;
+let quoteIntervalMin = 30;
+let defaultStudyMode = 'A';
+let cardOrder = 'sequential';
+let readMeaning = false;
+let quoteFilter = 'all'; // 'all' | 'notyet' | 'saved'
+function setSpeakMode(m) {
+  speakMode = m;
+  ['smWord','smExample','smBoth'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = { word: 'smWord', example: 'smExample', both: 'smBoth' };
+  document.getElementById(map[m]).classList.add('active');
+  window.autosave?.();
+}
+
+function setQuoteInterval(min) {
+  quoteIntervalMin = min;
+  ['qi30','qi60','qi720'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = { 30: 'qi30', 60: 'qi60', 720: 'qi720' };
+  document.getElementById(map[min]).classList.add('active');
+  startQuoteTimer();
+  window.autosave?.();
+}
+
+function setDefaultMode(m) {
+  defaultStudyMode = m;
+  ['dmWord','dmMeaning'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(m === 'A' ? 'dmWord' : 'dmMeaning').classList.add('active');
+  window.autosave?.();
+}
+
+function setCardOrder(order) {
+  cardOrder = order;
+  ['coSeq','coRand'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(order === 'sequential' ? 'coSeq' : 'coRand').classList.add('active');
+  window.autosave?.();
+}
+
+function setReadMeaning(val) {
+  readMeaning = val;
+  document.getElementById('readMeaningToggle').checked = val;
+  window.autosave?.();
+}
+
+function toggleAutoSpeak() {
+  autoSpeak = !autoSpeak;
+  const btn = document.getElementById('speakerBtn');
+  if (autoSpeak) {
+    btn.style.background = 'var(--accent-dim)';
+    btn.style.borderColor = 'rgba(200,184,240,0.3)';
+    btn.querySelector('svg').style.color = 'var(--accent)';
+    // Speak current card immediately
+    speak();
+  } else {
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.querySelector('svg').style.color = '';
+  }
+}
+
+function speak() {
+  if (current >= deck.length) return;
+  const c = cards[deck[current]];
+  speechSynthesis.cancel();
+  if (speakMode === 'word' || speakMode === 'both') {
+    const utt = new SpeechSynthesisUtterance(c.word);
+    utt.lang = 'en-US'; utt.rate = 0.85; utt.pitch = 1;
+    if (preferredVoice) utt.voice = preferredVoice;
+    if (speakMode === 'both') {
+      utt.onend = () => {
+        setTimeout(() => {
+          const utt2 = new SpeechSynthesisUtterance(c.example);
+          utt2.lang = 'en-US'; utt2.rate = 0.88; utt2.pitch = 1;
+          if (preferredVoice) utt2.voice = preferredVoice;
+          speechSynthesis.speak(utt2);
+        }, 400);
+      };
+    }
+    speechSynthesis.speak(utt);
+  } else {
+    const utt = new SpeechSynthesisUtterance(c.example);
+    utt.lang = 'en-US'; utt.rate = 0.88; utt.pitch = 1;
+    if (preferredVoice) utt.voice = preferredVoice;
+    speechSynthesis.speak(utt);
+  }
+}
+
+function updateProgress() {
+  const total = deck.length;
+  const pct = total > 0 ? (current / total * 100) : 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${Math.min(current+1, total)} / ${total}`;
+}
+
+function updateStatusRow(idx) {
+  const btn = document.getElementById('cardStatusBtn');
+  if (!btn) return;
+  const word = cards[idx] ? cards[idx].word : null;
+  const status = word ? (wordStatuses[word] || null) : null;
+  if (status === 'known') {
+    btn.style.background = 'var(--green-dim)';
+    btn.style.border = '1px solid rgba(126,221,176,0.3)';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#7eddb0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  } else if (status === 'unknown') {
+    btn.style.background = 'var(--red-dim)';
+    btn.style.border = '1px solid rgba(240,126,138,0.3)';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f07e8a" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  } else {
+    btn.style.background = 'transparent';
+    btn.style.border = 'none';
+    btn.innerHTML = '';
+  }
+}
+
+function updateStats() {
+  // stat cards removed — no DOM update needed
+}
+
+function showComplete() {
+  document.getElementById('mainWrap').classList.add('hidden');
+  const cs = document.getElementById('completeScreen');
+  cs.classList.add('show');
+  const knownCount = Object.values(wordStatuses).filter(v => v === 'known').length;
+  const unknownCount = Object.values(wordStatuses).filter(v => v === 'unknown').length;
+  document.getElementById('completeMessage').textContent = `${deck.length} cards done · ${knownCount} nailed · ${unknownCount} to review`;
+  document.getElementById('reviewBtn').style.display = unknownCount > 0 ? 'block' : 'none';
+}
+
+function restart() {
+  deck = [...cards.keys()];
+  if (cardOrder === 'random') deck = shuffleDeck(deck);
+  current = 0; bookmarks = new Set(); history = [];
+  lastSessionDeck = []; lastSessionCurrent = 0;
+  isFlipped = false;
+  document.getElementById('completeScreen').classList.remove('show');
+  document.getElementById('mainWrap').classList.remove('hidden');
+  document.getElementById('cardInner').classList.remove('flipped');
+  renderCard();
+}
+
+function reviewUnknown() {
+  const unknownWords = new Set(Object.entries(wordStatuses).filter(([,v]) => v === 'unknown').map(([k]) => k));
+  deck = [...cards.keys()].filter(i => unknownWords.has(cards[i].word));
+  if (cardOrder === 'random') deck = shuffleDeck(deck);
+  current = 0; bookmarks = new Set(); history = [];
+  isFlipped = false;
+  document.getElementById('completeScreen').classList.remove('show');
+  document.getElementById('mainWrap').classList.remove('hidden');
+  document.getElementById('cardInner').classList.remove('flipped');
+  renderCard();
+}
+
+// ── AUTO PLAY ──
+let apDeck = [];
+let apCurrent = 0;
+let apMode = 'A';
+let apIsPlaying = false;
+let apIsFlipped = false;
+let apInterval = 5;
+let apRepeat = 1;
+let apRepeatCount = 0;
+let apRandom = false;
+let apAutoRepeat = false;
+let apFilter = 'all'; // 'all' | 'notyet' | 'notnailed'
+let apTimer = null;
+let apDeckId = null;
+
+function setApFilter(f) {
+  apFilter = f;
+  ['apFilterAll','apFilterNotYet','apFilterNotNailed'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = { all: 'apFilterAll', notyet: 'apFilterNotYet', notnailed: 'apFilterNotNailed' };
+  document.getElementById(map[f]).classList.add('active');
+  // Rebuild deck with new filter
+  apCurrent = 0;
+  apRepeatCount = 0;
+  apDeck = buildApDeck();
+  if (apRandom) apDeck = shuffleDeck(apDeck);
+  renderApCard();
+}
+
+function buildApDeck() {
+  const d = decks.find(d => d.id === apDeckId);
+  if (!d) return [];
+  const allKeys = [...d.cards.keys()];
+  if (apFilter === 'all') return allKeys;
+  if (apFilter === 'notyet') return allKeys.filter(i => wordStatuses[d.cards[i].word] === 'unknown');
+  if (apFilter === 'notnailed') return allKeys.filter(i => wordStatuses[d.cards[i].word] !== 'known');
+  return allKeys;
+}
+
+function showAutoPlayPicker() {
+  const d = decks.find(d => d.id === lastDeckId);
+  if (!d || !d.cards.length) { showToast('No deck to play'); return; }
+  startAutoPlay(lastDeckId);
+}
+
+function startAutoPlay(deckId) {
+  const d = decks.find(d => d.id === deckId);
+  if (!d || !d.cards.length) { showToast('No words in this deck'); return; }
+  apDeckId = deckId;
+  apCurrent = 0;
+  apIsFlipped = false;
+  apIsPlaying = false;
+  apRepeatCount = 0;
+  apFilter = 'all';
+  apMode = defaultStudyMode;
+  apDeck = buildApDeck();
+  if (apRandom) apDeck = shuffleDeck(apDeck);
+  document.getElementById('autoPlayTitle').textContent = d.name;
+  document.getElementById('apModeA').classList.toggle('active', apMode === 'A');
+  document.getElementById('apModeB').classList.toggle('active', apMode === 'B');
+  document.getElementById('floatBar').style.display = 'none';
+  document.getElementById('apIntervalDisplay').textContent = apInterval + 's';
+  ['apFilterAll','apFilterNotYet','apFilterNotNailed'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('apFilterAll').classList.add('active');
+  updateApPlayIcon();
+  renderApCard();
+  showScreen('screenAutoPlay');
+}
+
+function exitAutoPlay() {
+  clearTimeout(apTimer);
+  apIsPlaying = false;
+  speechSynthesis.cancel();
+  document.getElementById('floatBar').style.display = 'flex';
+  updateApPlayIcon();
+  showScreen('screenHome');
+}
+
+function setApMode(m) {
+  apMode = m;
+  document.getElementById('apModeA').classList.toggle('active', m === 'A');
+  document.getElementById('apModeB').classList.toggle('active', m === 'B');
+  apIsFlipped = false;
+  document.getElementById('apCardInner').classList.remove('flipped');
+  renderApCard();
+}
+
+function speakApCard(flipped) {
+  const d = decks.find(d => d.id === apDeckId);
+  if (!d) return;
+  const c = d.cards[apDeck[apCurrent]];
+  if (!c) return;
+  speechSynthesis.cancel();
+
+  const sayWord = (onEnd) => {
+    const u = new SpeechSynthesisUtterance(c.word);
+    u.lang = 'en-US'; u.rate = 0.85;
+    if (preferredVoice) u.voice = preferredVoice;
+    if (onEnd) u.onend = onEnd;
+    speechSynthesis.speak(u);
+  };
+  const sayExample = (onEnd) => {
+    const u = new SpeechSynthesisUtterance(c.example);
+    u.lang = 'en-US'; u.rate = 0.88;
+    if (preferredVoice) u.voice = preferredVoice;
+    if (onEnd) u.onend = onEnd;
+    speechSynthesis.speak(u);
+  };
+  const sayMeaning = () => {
+    if (!readMeaning) return;
+    const u = new SpeechSynthesisUtterance(c.meaning);
+    u.lang = 'ja-JP'; u.rate = 0.9;
+    speechSynthesis.speak(u);
+  };
+
+  if (!flipped) {
+    // 앞면
+    if (speakMode === 'word' || speakMode === 'both') sayWord();
+    else sayExample();
+  } else {
+    // 뒷면 — 한글 뜻 읽기 (readMeaning ON일 때)
+    if (speakMode === 'both') {
+      sayExample(sayMeaning);
+    } else if (speakMode === 'word') {
+      readMeaning ? sayMeaning() : null;
+    } else {
+      sayExample(sayMeaning);
+    }
+    if (!readMeaning && speakMode === 'word') sayWord();
+  }
+}
+
+function renderApCard() {
+  const d = decks.find(d => d.id === apDeckId);
+  if (!d) return;
+  if (apCurrent >= apDeck.length) {
+    apRepeatCount++;
+    if (apAutoRepeat || apRepeatCount < apRepeat) {
+      apCurrent = 0;
+      if (apRandom) apDeck = shuffleDeck(apDeck);
+    } else {
+      apIsPlaying = false;
+      updateApPlayIcon();
+      clearTimeout(apTimer);
+      showToast('All done!');
+      apCurrent = 0;
+    }
+  }
+  const idx = apDeck[apCurrent];
+  const c = d.cards[idx];
+  if (!c) return;
+  const highlighted = highlightWord(c.example, c.word);
+  const front = document.getElementById('apCardFront');
+  const back = document.getElementById('apCardBack');
+  if (apMode === 'A') {
+    front.innerHTML = `<span class="card-hint">Tap to flip</span><div class="card-word">${c.word}</div><div class="card-pos">${c.pos}</div><div class="card-example">"${highlighted}"</div>`;
+    back.innerHTML = `<span class="card-hint">Meaning</span><div class="card-meaning">${c.meaning}</div><div class="card-meaning-sub">${c.word} · ${c.pos}</div>`;
+  } else {
+    const blanked = c.example.replace(new RegExp(c.word, 'gi'), `<span class="card-blank">${'_'.repeat(c.word.length)}</span>`);
+    front.innerHTML = `<span class="card-hint">Tap to flip</span><div class="card-meaning">${c.meaning}</div><div class="card-example" style="margin-top:8px;">"${blanked}"</div>`;
+    back.innerHTML = `<span class="card-hint">Answer</span><div class="card-word">${c.word}</div><div class="card-pos">${c.pos}</div><div class="card-example">"${highlighted}"</div>`;
+  }
+  apIsFlipped = false;
+  document.getElementById('apCardInner').classList.remove('flipped');
+  const total = apDeck.length;
+  document.getElementById('apProgressFill').style.width = (apCurrent / total * 100) + '%';
+  document.getElementById('apProgressText').textContent = `${apCurrent + 1} / ${total}`;
+  // Update bookmark state
+  const key = apDeckId + '-' + idx;
+  document.getElementById('apBookmarkBtn').classList.toggle('bookmarked', homeBookmarks.has(key));
+  // Update status indicator
+  const apStatusBtn = document.getElementById('apCardStatusBtn');
+  if (apStatusBtn) {
+    const status = wordStatuses[c.word] || null;
+    if (status === 'known') {
+      apStatusBtn.style.background = 'var(--green-dim)';
+      apStatusBtn.style.border = '1px solid rgba(126,221,176,0.3)';
+      apStatusBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#7eddb0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else if (status === 'unknown') {
+      apStatusBtn.style.background = 'var(--red-dim)';
+      apStatusBtn.style.border = '1px solid rgba(240,126,138,0.3)';
+      apStatusBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f07e8a" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    } else {
+      apStatusBtn.style.background = 'transparent';
+      apStatusBtn.style.border = 'none';
+      apStatusBtn.innerHTML = '';
+    }
+  }
+  // Speak front face
+  if (apIsPlaying) speakApCard(false);
+}
+
+function apTick() {
+  if (!apIsPlaying) return;
+  if (!apIsFlipped) {
+    apIsFlipped = true;
+    document.getElementById('apCardInner').classList.add('flipped');
+    speakApCard(true);
+    apTimer = setTimeout(apTick, apInterval * 1000);
+  } else {
+    apCurrent++;
+    renderApCard();
+    apTimer = setTimeout(apTick, apInterval * 1000);
+  }
+}
+
+function toggleApPlay() {
+  apIsPlaying = !apIsPlaying;
+  updateApPlayIcon();
+  if (apIsPlaying) {
+    speakApCard(false);
+    apTimer = setTimeout(apTick, apInterval * 1000);
+  } else {
+    clearTimeout(apTimer);
+    speechSynthesis.cancel();
+  }
+}
+
+function updateApPlayIcon() {
+  const icon = document.getElementById('apPlayIcon');
+  if (!icon) return;
+  if (apIsPlaying) {
+    icon.innerHTML = '<line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/>';
+  } else {
+    icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+  }
+}
+
+function apPrev() {
+  clearTimeout(apTimer);
+  speechSynthesis.cancel();
+  if (apCurrent > 0) apCurrent--;
+  apIsFlipped = false;
+  document.getElementById('apCardInner').classList.remove('flipped');
+  renderApCard();
+  if (apIsPlaying) apTimer = setTimeout(apTick, apInterval * 1000);
+}
+
+function apNext() {
+  clearTimeout(apTimer);
+  speechSynthesis.cancel();
+  apCurrent++;
+  apIsFlipped = false;
+  document.getElementById('apCardInner').classList.remove('flipped');
+  renderApCard();
+  if (apIsPlaying) apTimer = setTimeout(apTick, apInterval * 1000);
+}
+
+function adjustApInterval(delta) {
+  apInterval = Math.min(10, Math.max(2, apInterval + delta));
+  document.getElementById('apIntervalDisplay').textContent = apInterval + 's';
+}
+
+function setApRepeat(n) {
+  apRepeat = n;
+  apRepeatCount = 0;
+  [1,2,3].forEach(r => {
+    const el = document.getElementById('apRep' + r);
+    if (el) el.classList.toggle('active', r === n);
+  });
+}
+
+function toggleApAutoRepeat() {
+  apAutoRepeat = !apAutoRepeat;
+  const btn = document.getElementById('apAutoRepeatBtn');
+  btn.textContent = apAutoRepeat ? 'On' : 'Off';
+  btn.style.background = apAutoRepeat ? 'var(--accent-dim)' : 'var(--surface2)';
+  btn.style.borderColor = apAutoRepeat ? 'rgba(200,184,240,0.25)' : 'var(--border)';
+  btn.style.color = apAutoRepeat ? 'var(--accent)' : 'var(--text-muted)';
+}
+
+function toggleApRandom() {
+  apRandom = !apRandom;
+  const btn = document.getElementById('apRandomBtn');
+  btn.textContent = apRandom ? 'On' : 'Off';
+  btn.style.background = apRandom ? 'var(--green-dim)' : 'var(--surface2)';
+  btn.style.borderColor = apRandom ? 'rgba(126,221,176,0.3)' : 'var(--border)';
+  btn.style.color = apRandom ? 'var(--green)' : 'var(--text-muted)';
+  apDeck = buildApDeck();
+  if (apRandom) apDeck = shuffleDeck(apDeck);
+  apCurrent = 0;
+  renderApCard();
+}
+
+function toggleApBookmark() {
+  const d = decks.find(d => d.id === apDeckId);
+  if (!d) return;
+  const idx = apDeck[apCurrent];
+  const key = apDeckId + '-' + idx;
+  if (homeBookmarks.has(key)) { homeBookmarks.delete(key); showToast('Removed'); }
+  else { homeBookmarks.add(key); showToast('Saved!'); }
+  document.getElementById('apBookmarkBtn').classList.toggle('bookmarked', homeBookmarks.has(key));
+  window.autosave?.();
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+// ── EXPOSE TO HTML onclick handlers ──
+window.setQuoteFilter = setQuoteFilter;
+window.confirmDeleteWord = confirmDeleteWord;
+window.executeDeleteWord = executeDeleteWord;
+window.openEditWord = openEditWord;
+window.closeEditWordModal = closeEditWordModal;
+window.submitEditWord = submitEditWord;
+window.startEditDeckName = startEditDeckName;
+window.finishEditDeckName = finishEditDeckName;
+window.exitWordList = exitWordList;
+window.toggleMultiSelect = toggleMultiSelect;
+window.toggleMeaningVisibility = toggleMeaningVisibility;
+window.toggleWordStatus = toggleWordStatus;
+window.deleteSelectedWords = deleteSelectedWords;
+window.showMoveModal = showMoveModal;
+window.promptDeleteDeck = promptDeleteDeck;
+window.confirmDeleteDeck = confirmDeleteDeck;
+window.setApFilter = setApFilter;
+window.showAutoPlayPicker = showAutoPlayPicker;
+window.exitAutoPlay = exitAutoPlay;
+window.setApMode = setApMode;
+window.toggleApPlay = toggleApPlay;
+window.apPrev = apPrev;
+window.apNext = apNext;
+window.adjustApInterval = adjustApInterval;
+window.setApRepeat = setApRepeat;
+window.toggleApAutoRepeat = toggleApAutoRepeat;
+window.toggleApRandom = toggleApRandom;
+window.toggleApBookmark = toggleApBookmark;
+window.showScreen = showScreen;
+window.toggleQuoteMeaning = toggleQuoteMeaning;
+window.toggleQuoteBookmark = toggleQuoteBookmark;
+window.toggleDeck = toggleDeck;
+window.startStudy = startStudy;
+window.viewWordList = viewWordList;
+window.closeNewDeckModal = closeNewDeckModal;
+window.createNewDeck = createNewDeck;
+window.showAddWordModal = showAddWordModal;
+window.closeAddWordModal = closeAddWordModal;
+window.submitAddWord = submitAddWord;
+window.continueLastDeck = continueLastDeck;
+window.showQuickAdd = showQuickAdd;
+window.changeCalMonth = changeCalMonth;
+window.exitStudy = exitStudy;
+window.setMode = setMode;
+window.flipCard = flipCard;
+window.markCard = markCard;
+window.goBack = goBack;
+window.toggleBookmark = toggleBookmark;
+window.toggleAutoSpeak = toggleAutoSpeak;
+window.speak = speak;
+window.restart = restart;
+window.reviewUnknown = reviewUnknown;
+window.setReadMeaning = setReadMeaning;
+window.setSpeakMode = setSpeakMode;
+window.setQuoteInterval = setQuoteInterval;
+window.setDefaultMode = setDefaultMode;
+window.setCardOrder = setCardOrder;
+window.onAddWordInput = onAddWordInput;
+
+// ── INIT ──
+loadFromFirebase();
+</script>
+</body>
+</html>
